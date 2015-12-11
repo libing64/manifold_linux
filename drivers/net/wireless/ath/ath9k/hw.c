@@ -1853,6 +1853,7 @@ int ath9k_hw_reset(struct ath_hw *ah, struct ath9k_channel *chan,
 	u32 saveLedState;
 	u32 saveDefAntenna;
 	u32 macStaId1;
+	u32 tmp;
 	u64 tsf = 0;
 	int r;
 	bool start_mci_reset = false;
