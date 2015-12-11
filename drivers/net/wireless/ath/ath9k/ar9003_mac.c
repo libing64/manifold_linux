@@ -152,9 +152,13 @@ ar9003_set_txdesc(struct ath_hw *ah, void *ds, struct ath_tx_info *i)
 		| set11nRateFlags(i->rates, 3)
 		| SM(i->rtscts_rate, AR_RTSCTSRate);
 
-	ACCESS_ONCE(ads->ctl20) = SM(i->txpower[1], AR_XmitPower1);
-	ACCESS_ONCE(ads->ctl21) = SM(i->txpower[2], AR_XmitPower2);
-	ACCESS_ONCE(ads->ctl22) = SM(i->txpower[3], AR_XmitPower3);
+	ACCESS_ONCE(ads->ctl20) = SM(i->txpower, AR_XmitPower);
+	ACCESS_ONCE(ads->ctl21) = SM(i->txpower, AR_XmitPower);
+	ACCESS_ONCE(ads->ctl22) = SM(i->txpower, AR_XmitPower);
+
+	//ACCESS_ONCE(ads->ctl20) = SM(i->txpower[1], AR_XmitPower1);
+	//ACCESS_ONCE(ads->ctl21) = SM(i->txpower[2], AR_XmitPower2);
+	//ACCESS_ONCE(ads->ctl22) = SM(i->txpower[3], AR_XmitPower3);
 
     rate1 = (ads->ctl14 >> 24) & 0xff;
     rate2 = (ads->ctl14 >> 16) & 0xff;
