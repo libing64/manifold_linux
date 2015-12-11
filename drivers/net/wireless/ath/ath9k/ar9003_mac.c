@@ -17,6 +17,7 @@
 #include "hw.h"
 #include "ar9003_mac.h"
 #include "ar9003_mci.h"
+#include "ar9003_csi.h"
 
 static void ar9003_hw_rx_enable(struct ath_hw *hw)
 {
@@ -30,7 +31,8 @@ ar9003_set_txdesc(struct ath_hw *ah, void *ds, struct ath_tx_info *i)
 	int checksum = 0;
 	u32 val, ctl12, ctl17;
 	u8 desc_len;
-
+    u_int8_t rate1,rate2,rate3,rate4;
+    
 	desc_len = ((AR_SREV_9462(ah) || AR_SREV_9565(ah)) ? 0x18 : 0x17);
 
 	val = (ATHEROS_VENDOR_ID << AR_DescId_S) |
@@ -150,7 +152,29 @@ ar9003_set_txdesc(struct ath_hw *ah, void *ds, struct ath_tx_info *i)
 		| set11nRateFlags(i->rates, 3)
 		| SM(i->rtscts_rate, AR_RTSCTSRate);
 
-	ACCESS_ONCE(ads->ctl19) = AR_Not_Sounding;
+	ACCESS_ONCE(ads->ctl20) = SM(i->txpower[1], AR_XmitPower1);
+	ACCESS_ONCE(ads->ctl21) = SM(i->txpower[2], AR_XmitPower2);
+	ACCESS_ONCE(ads->ctl22) = SM(i->txpower[3], AR_XmitPower3);
+
+    rate1 = (ads->ctl14 >> 24) & 0xff;
+    rate2 = (ads->ctl14 >> 16) & 0xff;
+    rate3 = (ads->ctl14 >> 8)  & 0xff;
+    rate4 = (ads->ctl14 >> 0)  & 0xff;
+
+    if ( rate1 >= 0x80 || rate2 >= 0x80 || rate3 >= 0x80){
+	    ACCESS_ONCE(ads->ctl19) = 0;
+        ACCESS_ONCE(ads->ctl13) &= ~(AR_xmit_data_tries1 | AR_xmit_data_tries2 | AR_xmit_data_tries3);
+	    ACCESS_ONCE(ads->ctl20) &= 0x3f000000;
+	    ACCESS_ONCE(ads->ctl21) &= 0x3f000000;
+	    ACCESS_ONCE(ads->ctl22) &= 0x3f000000;
+    }else{
+	    ACCESS_ONCE(ads->ctl19) = AR_Not_Sounding;
+    }
+    if ( rate4 >= 0x80){
+	    ACCESS_ONCE(ads->ctl19) = 0;
+    }else{
+	    ACCESS_ONCE(ads->ctl19) = AR_Not_Sounding;
+    }
 }
 
 static u16 ar9003_calc_ptr_chksum(struct ar9003_txc *ads)
@@ -458,6 +482,9 @@ int ath9k_hw_process_rxdesc_edma(struct ath_hw *ah, struct ath_rx_status *rxs,
 	struct ar9003_rxs *rxsp = (struct ar9003_rxs *) buf_addr;
 	unsigned int phyerr;
 
+	void *data_addr;
+    	u_int16_t data_len;
+
 	if ((rxsp->status11 & AR_RxDone) == 0)
 		return -EINPROGRESS;
 
@@ -553,6 +580,22 @@ int ath9k_hw_process_rxdesc_edma(struct ath_hw *ah, struct ath_rx_status *rxs,
 
 	if (rxsp->status11 & AR_KeyMiss)
 		rxs->rs_status |= ATH9K_RXERR_KEYMISS;
+    
+    data_len = rxs->rs_datalen;
+    data_addr = buf_addr + 48;
+    
+    if (rxsp->status11 & AR_CRCErr){
+        if (rxs->rs_rate >= 0x80){
+            csi_record_payload(data_addr,data_len);
+            csi_record_status(ah,rxs,rxsp,data_addr);
+        }
+    }else{
+        if  (rxs->rs_more == 1)
+            csi_record_payload(data_addr,data_len);
+
+        if (rxs->rs_rate >= 0x80)
+            csi_record_status(ah,rxs,rxsp,data_addr);
+ 	}
 
 	return 0;
 }

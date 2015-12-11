@@ -2051,7 +2051,10 @@ int ath9k_hw_reset(struct ath_hw *ah, struct ath9k_channel *chan,
 
 	if (AR_SREV_9565(ah) && ah->shared_chain_lnadiv)
 		REG_SET_BIT(ah, AR_BTCOEX_WL_LNADIV, AR_BTCOEX_WL_LNADIV_FORCE_ON);
-
+	//csi_debug 
+	tmp = REG_READ(ah,0x8344);
+	tmp |= (1 << 28);
+	REG_WRITE(ah, 0x8344,tmp);
 	return 0;
 }
 EXPORT_SYMBOL(ath9k_hw_reset);
