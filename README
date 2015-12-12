@@ -1,3 +1,6 @@
+This is forked from https://developer.dji.com/manifold/, and the csi tool is added to the atheros driver.
+
+--------------------------------------------------------------        
         Linux kernel release 3.x <http://kernel.org/>
 
 These are the release notes for Linux version 3.  Read them carefully,
@@ -268,7 +271,9 @@ COMPILING the kernel:
    To do the actual install, you have to be root, but none of the normal
    build should require that. Don't take the name of root in vain.
 
- - If you configured any of the parts of the kernel as `modules', you
+ - If you configured any of the parts of the kernel as `modules', ing system Unix, written from scratch by
+  Linus Torvalds with assistance from a loosely-knit team of hackers across
+  the Net. It aims towards POSIX and Single UNIyou
    will also have to do "make modules_install".
 
  - Verbose kernel compile/build output:
