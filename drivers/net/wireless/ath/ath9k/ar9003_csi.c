@@ -186,9 +186,10 @@ static ssize_t csi_read(struct file *file, char __user *user_buf,
         //1. rx_status
         memcpy(tx_buf, RxStatus, 23);                         // copy the status to the buffer 
         len += 23;
+
         //2. payload len, this is stored in the rx status
-        // memcpy(tx_buf + len, &payload_len, 2);                 // record the length of payload 
-        // len += 2;
+        memcpy(tx_buf + len, &payload_len, 2);                 // record the length of payload 
+        len += 2;
 
 
         //3. csi (csi len is stored in the rx status)
