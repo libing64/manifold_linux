@@ -1,0 +1,13 @@
+#1 linux distribution 3.10.40
+
+The linux distribution is forked from https://developer.dji.com/manifold/.
+
+
+#2 atheros csi tools
+The code is forked from https://github.com/xieyaxiongfly/Atheros-CSI-Tool.
+
+This is a tool for extracting CSI information from commercial Atheros WiFi NIC. 
+
+Please visit our maintainance page http://pdcc.ntu.edu.sg/wands/Atheros/ for detailed infomration.
+
+If you want more details on how to use this tool, please request the documentation http://pdcc.ntu.edu.sg/wands/Atheros/install/install_info.html.
